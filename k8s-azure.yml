@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+  labels:
+    app: service-polyglot
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: service-polyglot
+  template:
+    metadata:
+      labels:
+        app: service-polyglot
+    spec:
+      containers:
+      - name: service-polyglot
+        image: crpolyglot.azurecr.io/appdeposit:#{Build.BuildId}#
+        ports:
+        - containerPort: 80
+        imagePullPolicy: Always
+      imagePullSecrets:
+      - name: polyglot.com  
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: app-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: service-polyglot
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    name: http
